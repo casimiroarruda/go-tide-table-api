@@ -13,18 +13,21 @@ import (
 )
 
 func main() {
-	dsn := "postgres://postgres:[SENHA]@[HOST]:5432/postgres"
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL is not set")
+	}
 
 	db, err := sqlx.Open("pgx", dsn)
 	if err != nil {
-		log.Fatalf("Erro ao abrir banco: %v", err)
+		log.Fatalf("Error while opening database: %v", err)
 	}
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		log.Fatalf("Banco inacessível: %v", err)
+		log.Fatalf("Database connection error: %v", err)
 	}
-	log.Println("✅ Conectado ao Supabase com sucesso!")
+	log.Println("✅ Successfully connected to Database")
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
