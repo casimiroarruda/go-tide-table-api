@@ -43,6 +43,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 		assert.Equal(t, "PORTO DO RECIFE", locations[0].Name)
 		assert.Equal(t, domain.MeanSeaLevel(1.28), locations[0].MeanSeaLevel)
 	}
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {

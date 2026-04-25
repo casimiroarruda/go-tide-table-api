@@ -25,7 +25,9 @@ func (h *LocationHandler) GetLocations(w http.ResponseWriter, r *http.Request) {
 	locations, err := h.repo.FetchAll(ctx, nameFilter)
 	if err != nil {
 		log.Printf("❌ Erro detalhado no Repo: %v", err) // Isso vai aparecer no seu terminal
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "internal server error"})
 		return
 	}
 

@@ -14,7 +14,17 @@ type LocationRepo struct {
 
 // GetByID implements [domain.LocationRepository].
 func (r *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Location, error) {
-	panic("unimplemented")
+	var location domain.Location
+
+	query := `SELECT id, marine_id, name, ST_AsText(point) as point, mean_sea_level, timezone
+              FROM location
+              WHERE id = $1`
+
+	if err := r.db.GetContext(ctx, &location, query, id); err != nil {
+		return nil, err
+	}
+
+	return &location, nil
 }
 
 func NewLocationRepo(db *sqlx.DB) *LocationRepo {
