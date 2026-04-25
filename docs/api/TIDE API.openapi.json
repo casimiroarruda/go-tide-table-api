@@ -1,0 +1,216 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Default module",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/api/location": {
+      "get": {
+        "summary": "Location",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Filters by location's name",
+            "required": false,
+            "example": "Rec",
+            "schema": {
+              "type": "string",
+              "pattern": "//"
+            }
+          },
+          {
+            "name": "point",
+            "in": "query",
+            "description": "Filters by locations geographical position (100km)",
+            "required": false,
+            "example": "POINT(-23.5505 -46.6333)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Location"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/location/{location.id}/tides/{day}": {
+      "get": {
+        "summary": "Tide",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "location.id",
+            "in": "path",
+            "description": "Location ID",
+            "required": true,
+            "example": "{{$string.uuid}}",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "day",
+            "in": "path",
+            "description": "Date for locate Tide Data",
+            "required": true,
+            "example": "date{{$date.now|format('yyyy-MM-dd')}}",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "examples": [
+                "2026-04-22"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tide"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "webhooks": {},
+  "components": {
+    "schemas": {
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Location ID",
+            "format": "uuid"
+          },
+          "marineId": {
+            "type": "string",
+            "description": "ID from Marinha do Brasil",
+            "maxLength": 2,
+            "pattern": "[0-9]{2}",
+            "examples": [
+              "25",
+              "09",
+              "15"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Location name"
+          },
+          "point": {
+            "type": "string",
+            "pattern": "/POINT\\((-?\\d+\\.?\\d*)\\s+(-?\\d+\\.?\\d*)\\)/",
+            "examples": [
+              "POINT(23.33 -11.2)"
+            ],
+            "description": "Geographical point [POINT(longitude latitude)]"
+          },
+          "meanSeaLevel": {
+            "type": "number",
+            "description": "Mean Sea Level (m)",
+            "minimum": -1.99,
+            "format": "float",
+            "maximum": 9.99,
+            "examples": [
+              1.28,
+              2.01,
+              0.98
+            ]
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Location's timezone "
+          }
+        },
+        "required": [
+          "id",
+          "marineId",
+          "name",
+          "point",
+          "meanSeaLevel",
+          "timezone"
+        ]
+      },
+      "Tide": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string",
+            "description": "Tide time",
+            "format": "date-time"
+          },
+          "height": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9.99,
+            "maximum": 9.99,
+            "description": "Tide height in meters (m)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "LOW"
+            ],
+            "description": "HIGH if height >= Location.meanSeaLevel, LOW otherwise"
+          }
+        },
+        "required": [
+          "time",
+          "height",
+          "type"
+        ]
+      }
+    },
+    "responses": {},
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "servers": [],
+  "security": []
+}
