@@ -31,7 +31,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", msl, "-03:00")
 
 	// 3. Expectativa: O regex agora ignora espaços extras e quebras de linha
-	mock.ExpectQuery(`(?i)SELECT (.+) FROM location`).WillReturnRows(rows)
+	mock.ExpectQuery(`(?is)SELECT (.+) FROM location`).WillReturnRows(rows)
 
 	// 4. Execução
 	locations, err := repo.FetchAll(context.Background(), "")
