@@ -61,7 +61,7 @@ func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", 1.28, "-03:00")
 
 	// Expectativa com o WHERE clause - regex mais flexível para o ILIKE
-	mock.ExpectQuery(`(?i)SELECT .* FROM location WHERE name ILIKE .* ORDER BY name ASC`).
+	mock.ExpectQuery(`(?is)SELECT .* FROM location WHERE name ILIKE .* ORDER BY name ASC`).
 		WithArgs("Recife").
 		WillReturnRows(rows)
 
