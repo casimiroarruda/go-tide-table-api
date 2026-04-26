@@ -45,16 +45,19 @@ func (r *LocationRepo) FetchAll(ctx context.Context, name string) ([]domain.Loca
 
 	query += " ORDER BY name ASC"
 
-	// Usando NamedQuery ou apenas passando o argumento
-	// O sqlx facilita o mapeamento de slices com o SelectContext
+	// Usando SelectContext para mapear diretamente o resultado para o slice
 	var err error
 	if name != "" {
-		// Para filtros simples, podemos usar o Rebind do sqlx para converter ? em $1 (Postgres)
-		rows, err := r.db.NamedQueryContext(ctx, query, map[string]interface{}{"name": name})
+		var boundQuery string
+		var args []interface{}
+
+		boundQuery, args, err = sqlx.Named(query, map[string]interface{}{"name": name})
 		if err != nil {
 			return nil, err
 		}
-		err = sqlx.StructScan(rows, &locations)
+
+		boundQuery = r.db.Rebind(boundQuery)
+		err = r.db.SelectContext(ctx, &locations, boundQuery, args...)
 	} else {
 		err = r.db.SelectContext(ctx, &locations, query)
 	}
