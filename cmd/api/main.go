@@ -38,8 +38,6 @@ func main() {
 		log.Fatal("DATABASE_SCHEMA is not set")
 	}
 
-	// Evita SQL Injection em comandos que não aceitam parâmetros (como SET search_path)
-	// formatando o schema como um identificador PostgreSQL aspas duplas.
 	safeSchema := quoteIdentifier(schema)
 	_, err = db.Exec(fmt.Sprintf("SET search_path TO %s, public", safeSchema))
 	if err != nil {
