@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/casimiroarruda/go-tide-table-api/internal/platform/http/handlers"
+	authMiddleware "github.com/casimiroarruda/go-tide-table-api/internal/platform/http/middleware"
 	"github.com/casimiroarruda/go-tide-table-api/internal/platform/storage/postgresql"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -39,14 +40,16 @@ func main() {
 	}
 
 	safeSchema := quoteIdentifier(schema)
-	_, err = db.Exec(fmt.Sprintf("SET search_path TO %s, public", safeSchema))
+	_, err = db.Exec(fmt.Sprintf("SET search_path TO %s", safeSchema))
 	if err != nil {
 		log.Fatalf("❌ Erro ao definir o schema: %v", err)
 	}
 	log.Println("📍 Schema configurado com sucesso!")
 
 	locationRepo := postgresql.NewLocationRepo(db)
+	authRepo := postgresql.NewAuthRepository(db)
 	locationHandler := handlers.NewLocationHandler(locationRepo)
+	authHandler := handlers.NewAuthHandler(*authRepo)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -56,8 +59,21 @@ func main() {
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("API está online 🌊"))
 	})
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET is not set")
+	}
+
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/locations", locationHandler.GetLocations)
+		r.Post(
+			"/auth/token",
+			authHandler.IssueToken,
+		)
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.EnsureValidToken(jwtSecret))
+			r.Get("/locations", locationHandler.GetLocations)
+		})
 	})
 
 	port := os.Getenv("PORT")
