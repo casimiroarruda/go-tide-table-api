@@ -3,18 +3,18 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 
 	"github.com/casimiroarruda/go-tide-table-api/internal/domain"
 	"github.com/casimiroarruda/go-tide-table-api/internal/platform/auth"
 )
 
 type AuthHandler struct {
-	repo domain.AuthRepository
+	repo      domain.AuthRepository
+	jwtSecret string
 }
 
-func NewAuthHandler(repo domain.AuthRepository) *AuthHandler {
-	return &AuthHandler{repo: repo}
+func NewAuthHandler(repo domain.AuthRepository, jwtSecret string) *AuthHandler {
+	return &AuthHandler{repo: repo, jwtSecret: jwtSecret}
 }
 
 func (h *AuthHandler) IssueToken(w http.ResponseWriter, r *http.Request) {
@@ -34,8 +34,7 @@ func (h *AuthHandler) IssueToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secret := os.Getenv("JWT_SECRET")
-	token, err := auth.GenerateToken(client.ClientID.String(), []string(client.Scopes), secret)
+	token, err := auth.GenerateToken(client.ClientID.String(), []string(client.Scopes), h.jwtSecret)
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return

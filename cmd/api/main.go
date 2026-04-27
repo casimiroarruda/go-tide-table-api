@@ -32,10 +32,15 @@ func main() {
 	}
 	log.Println("✅ Successfully connected to Database")
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET is not set")
+	}
+
 	locationRepo := postgresql.NewLocationRepo(db)
 	authRepo := postgresql.NewAuthRepository(db)
 	locationHandler := handlers.NewLocationHandler(locationRepo)
-	authHandler := handlers.NewAuthHandler(authRepo)
+	authHandler := handlers.NewAuthHandler(authRepo, jwtSecret)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -45,11 +50,6 @@ func main() {
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("API está online 🌊"))
 	})
-
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Fatal("JWT_SECRET is not set")
-	}
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post(

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/casimiroarruda/go-tide-table-api/internal/domain"
@@ -29,9 +28,8 @@ func (m *MockAuthRepository) ValidateClient(ctx context.Context, id, secret stri
 }
 
 func TestAuthHandler_IssueToken(t *testing.T) {
-	os.Setenv("JWT_SECRET", "test-secret")
 	repo := new(MockAuthRepository)
-	handler := NewAuthHandler(repo)
+	handler := NewAuthHandler(repo, "test-secret")
 
 	t.Run("successful token issue", func(t *testing.T) {
 		clientID := uuid.New()
