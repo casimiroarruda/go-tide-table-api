@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 
 	"github.com/casimiroarruda/go-tide-table-api/internal/domain"
 	"github.com/jmoiron/sqlx"
@@ -25,7 +24,6 @@ func (r *AuthRepo) ValidateClient(ctx context.Context, id, secret string) (*doma
 	query := `SELECT client_id, client_secret, name, scopes FROM auth_store.clients WHERE client_id = $1`
 	err := r.db.GetContext(ctx, &client, query, id)
 	if err != nil {
-		log.Printf("Client %s found", err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("client not found")
 		}
