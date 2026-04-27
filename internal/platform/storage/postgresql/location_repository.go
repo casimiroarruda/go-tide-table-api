@@ -15,9 +15,8 @@ type LocationRepo struct {
 // GetByID implements [domain.LocationRepository].
 func (r *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Location, error) {
 	var location domain.Location
-	r.db.Exec("SET search_path TO tide_tracker")
-	query := `SELECT id, marine_id, name, ST_AsText(point) as point, mean_sea_level, timezone
-              FROM location
+	query := `SELECT id, marine_id, name, tide_tracker.ST_AsText(point::tide_tracker.geography) as point, mean_sea_level, timezone
+              FROM tide_tracker.location
               WHERE id = $1`
 
 	if err := r.db.GetContext(ctx, &location, query, id); err != nil {
@@ -34,11 +33,10 @@ func NewLocationRepo(db *sqlx.DB) *LocationRepo {
 func (r *LocationRepo) FetchAll(ctx context.Context, name string) ([]domain.Location, error) {
 	var locations []domain.Location
 
-	r.db.Exec("SET search_path TO tide_tracker")
 	query := `SELECT id, marine_id, name, 
-				ST_AsText(point) as point, 
+				tide_tracker.ST_AsText(point::tide_tracker.geography) as point, 
 				mean_sea_level, timezone 
-              FROM location`
+              FROM tide_tracker.location`
 
 	if name != "" {
 		query += " WHERE name ILIKE $1"

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -20,6 +21,9 @@ func EnsureValidToken(jwtSecret string) func(http.Handler) http.Handler {
 			claims := &auth.CustomClaims{}
 
 			token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+				}
 				return []byte(jwtSecret), nil
 			})
 
@@ -27,6 +31,19 @@ func EnsureValidToken(jwtSecret string) func(http.Handler) http.Handler {
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
+			hasScope := false
+			requiredScope := "locations:read"
+			for _, s := range claims.Scopes {
+				if s == requiredScope {
+					hasScope = true
+					break
+				}
+			}
+			if !hasScope {
+				http.Error(w, "Insufficient permissions", http.StatusForbidden)
+				return
+			}
+
 			next.ServeHTTP(w, r)
 
 		})
