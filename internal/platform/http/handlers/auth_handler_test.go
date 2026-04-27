@@ -38,10 +38,10 @@ func TestAuthHandler_IssueToken(t *testing.T) {
 			Scopes:   domain.StringSlice{"read"},
 		}
 
-		repo.On("ValidateClient", mock.Anything, "client-1", "secret-1").Return(client, nil)
+		repo.On("ValidateClient", mock.Anything, clientID.String(), "secret-1").Return(client, nil)
 
 		body := map[string]string{
-			"client_id":     "client-1",
+			"client_id":     clientID.String(),
 			"client_secret": "secret-1",
 		}
 		jsonBody, _ := json.Marshal(body)
@@ -58,10 +58,11 @@ func TestAuthHandler_IssueToken(t *testing.T) {
 	})
 
 	t.Run("unauthorized", func(t *testing.T) {
-		repo.On("ValidateClient", mock.Anything, "wrong", "wrong").Return(nil, errors.New("unauthorized"))
+		wrongID := uuid.New().String()
+		repo.On("ValidateClient", mock.Anything, wrongID, "wrong").Return(nil, errors.New("unauthorized"))
 
 		body := map[string]string{
-			"client_id":     "wrong",
+			"client_id":     wrongID,
 			"client_secret": "wrong",
 		}
 		jsonBody, _ := json.Marshal(body)
