@@ -31,8 +31,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", msl, "-03:00")
 
 	// 3. Expectativa: O regex agora ignora espaços extras e quebras de linha
-	mock.ExpectExec("SET search_path TO tide_tracker").WillReturnResult(sqlmock.NewResult(0, 0))
-	mock.ExpectQuery(`(?is)SELECT (.+) FROM location`).WillReturnRows(rows)
+	mock.ExpectQuery(`(?is)SELECT (.+) FROM tide_tracker.location`).WillReturnRows(rows)
 
 	// 4. Execução
 	locations, err := repo.FetchAll(context.Background(), "")
@@ -62,8 +61,7 @@ func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", 1.28, "-03:00")
 
 	// Expectativa com o WHERE clause - regex mais flexível para o ILIKE
-	mock.ExpectExec("SET search_path TO tide_tracker").WillReturnResult(sqlmock.NewResult(0, 0))
-	mock.ExpectQuery(`(?is)SELECT .* FROM location WHERE name ILIKE .* ORDER BY name ASC`).
+	mock.ExpectQuery(`(?is)SELECT .* FROM tide_tracker.location WHERE name ILIKE .* ORDER BY name ASC`).
 		WithArgs("%Recife%").
 		WillReturnRows(rows)
 
@@ -88,8 +86,7 @@ func TestLocationRepo_GetByID(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "marine_id", "name", "point", "mean_sea_level", "timezone"}).
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", 1.28, "-03:00")
 
-	mock.ExpectExec("SET search_path TO tide_tracker").WillReturnResult(sqlmock.NewResult(0, 0))
-	mock.ExpectQuery(`SELECT .* FROM location WHERE id = \$1`).
+	mock.ExpectQuery(`(?is)SELECT .* FROM tide_tracker.location WHERE id = \$1`).
 		WithArgs(id).
 		WillReturnRows(rows)
 

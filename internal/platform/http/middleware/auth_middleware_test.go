@@ -17,7 +17,7 @@ func TestEnsureValidToken(t *testing.T) {
 	})
 
 	t.Run("valid token", func(t *testing.T) {
-		token, _ := auth.GenerateToken("client-1", []string{"read"}, secret)
+		token, _ := auth.GenerateToken("client-1", []string{"locations:read"}, secret)
 		req, _ := http.NewRequest("GET", "/", nil)
 		req.Header.Set("Authorization", "Bearer "+token)
 		rr := httptest.NewRecorder()

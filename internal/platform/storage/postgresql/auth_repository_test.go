@@ -30,22 +30,21 @@ func TestAuthRepo_ValidateClient(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"client_id", "client_secret", "name", "scopes"}).
 			AddRow(clientID, string(hash), "Test Client", "{admin}")
 
-		mock.ExpectExec("SET search_path TO auth_store").WillReturnResult(sqlmock.NewResult(0, 0))
-		mock.ExpectQuery(`SELECT client_id, client_secret, name, scopes FROM clients WHERE client_id = \$1`).
+		mock.ExpectQuery(`SELECT client_id, client_secret, name, scopes FROM auth_store.clients WHERE client_id = \$1`).
 			WithArgs(clientID.String()).
 			WillReturnRows(rows)
 
 		client, err := repo.ValidateClient(context.Background(), clientID.String(), password)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, client)
-		assert.Equal(t, clientID, client.ClientID)
-		assert.Equal(t, "Test Client", client.Name)
+		if assert.NotNil(t, client) {
+			assert.Equal(t, clientID, client.ClientID)
+			assert.Equal(t, "Test Client", client.Name)
+		}
 	})
 
 	t.Run("client not found", func(t *testing.T) {
-		mock.ExpectExec("SET search_path TO auth_store").WillReturnResult(sqlmock.NewResult(0, 0))
-		mock.ExpectQuery(`SELECT .* FROM clients`).
+		mock.ExpectQuery(`SELECT .* FROM auth_store.clients`).
 			WithArgs("unknown").
 			WillReturnError(sql.ErrNoRows)
 
@@ -60,8 +59,7 @@ func TestAuthRepo_ValidateClient(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"client_id", "client_secret", "name", "scopes"}).
 			AddRow(clientID, string(hash), "Test Client", "{admin}")
 
-		mock.ExpectExec("SET search_path TO auth_store").WillReturnResult(sqlmock.NewResult(0, 0))
-		mock.ExpectQuery(`SELECT .* FROM clients`).
+		mock.ExpectQuery(`SELECT .* FROM auth_store.clients`).
 			WithArgs(clientID.String()).
 			WillReturnRows(rows)
 
