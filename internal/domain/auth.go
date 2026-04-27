@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type StringSlice []string
@@ -35,7 +37,7 @@ func (s *StringSlice) Scan(src any) error {
 }
 
 type ClientCredentials struct {
-	ClientID     string      `db:"client_id"`
+	ClientID     uuid.UUID   `db:"client_id"`
 	ClientSecret string      `db:"client_secret"`
 	Name         string      `db:"name"`
 	Scopes       StringSlice `db:"scopes"`

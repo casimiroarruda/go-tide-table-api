@@ -17,7 +17,6 @@ func NewLocationHandler(repo domain.LocationRepository) *LocationHandler {
 }
 
 func (h *LocationHandler) GetLocations(w http.ResponseWriter, r *http.Request) {
-	// Captura o filtro "name" da query string (conforme seu OpenAPI)
 	nameFilter := r.URL.Query().Get("name")
 	ctx := r.Context()
 

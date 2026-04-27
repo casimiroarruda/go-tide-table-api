@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/casimiroarruda/go-tide-table-api/internal/platform/http/handlers"
@@ -33,18 +31,6 @@ func main() {
 		log.Fatalf("Database connection error: %v", err)
 	}
 	log.Println("✅ Successfully connected to Database")
-
-	schema := os.Getenv("DATABASE_SCHEMA")
-	if schema == "" {
-		log.Fatal("DATABASE_SCHEMA is not set")
-	}
-
-	safeSchema := quoteIdentifier(schema)
-	_, err = db.Exec(fmt.Sprintf("SET search_path TO %s", safeSchema))
-	if err != nil {
-		log.Fatalf("❌ Erro ao definir o schema: %v", err)
-	}
-	log.Println("📍 Schema configurado com sucesso!")
 
 	locationRepo := postgresql.NewLocationRepo(db)
 	authRepo := postgresql.NewAuthRepository(db)
@@ -91,8 +77,4 @@ func main() {
 		log.Panicf("Erro ao listar rotas: %s\n", err.Error())
 	}
 	log.Fatal(http.ListenAndServe(":"+port, r))
-}
-
-func quoteIdentifier(s string) string {
-	return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 }

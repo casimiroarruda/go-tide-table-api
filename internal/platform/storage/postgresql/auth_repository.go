@@ -22,7 +22,8 @@ func NewAuthRepository(db *sqlx.DB) *AuthRepo {
 func (r *AuthRepo) ValidateClient(ctx context.Context, id, secret string) (*domain.ClientCredentials, error) {
 	var client domain.ClientCredentials
 
-	query := `SELECT client_id, client_secret, name, scopes FROM auth_store.clients WHERE client_id = $1`
+	r.db.Exec("SET search_path TO auth_store")
+	query := `SELECT client_id, client_secret, name, scopes FROM clients WHERE client_id = $1`
 	err := r.db.GetContext(ctx, &client, query, id)
 	if err != nil {
 		log.Printf("Client %s found", err)

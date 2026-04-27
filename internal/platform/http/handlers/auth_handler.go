@@ -35,7 +35,7 @@ func (h *AuthHandler) IssueToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	secret := os.Getenv("JWT_SECRET")
-	token, err := auth.GenerateToken(client.ClientID, []string(client.Scopes), secret)
+	token, err := auth.GenerateToken(client.ClientID.String(), []string(client.Scopes), secret)
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
