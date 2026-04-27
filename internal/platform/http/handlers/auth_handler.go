@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/casimiroarruda/go-tide-table-api/internal/domain"
 	"github.com/casimiroarruda/go-tide-table-api/internal/platform/auth"
-	"github.com/casimiroarruda/go-tide-table-api/internal/platform/storage/postgresql"
 )
 
 type AuthHandler struct {
-	repo postgresql.AuthRepo
+	repo domain.AuthRepository
 }
 
-func NewAuthHandler(repo postgresql.AuthRepo) *AuthHandler {
+func NewAuthHandler(repo domain.AuthRepository) *AuthHandler {
 	return &AuthHandler{repo: repo}
 }
 

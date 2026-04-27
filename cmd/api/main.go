@@ -35,7 +35,7 @@ func main() {
 	locationRepo := postgresql.NewLocationRepo(db)
 	authRepo := postgresql.NewAuthRepository(db)
 	locationHandler := handlers.NewLocationHandler(locationRepo)
-	authHandler := handlers.NewAuthHandler(*authRepo)
+	authHandler := handlers.NewAuthHandler(authRepo)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
