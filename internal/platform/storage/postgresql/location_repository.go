@@ -15,9 +15,8 @@ type LocationRepo struct {
 // GetByID implements [domain.LocationRepository].
 func (r *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Location, error) {
 	var location domain.Location
-
-	query := `SELECT id, marine_id, name, ST_AsText(point) as point, mean_sea_level, timezone
-              FROM location
+	query := `SELECT id, marine_id, name, tide_tracker.ST_AsText(point::tide_tracker.geography) as point, mean_sea_level, timezone
+              FROM tide_tracker.location
               WHERE id = $1`
 
 	if err := r.db.GetContext(ctx, &location, query, id); err != nil {
@@ -34,33 +33,23 @@ func NewLocationRepo(db *sqlx.DB) *LocationRepo {
 func (r *LocationRepo) FetchAll(ctx context.Context, name string) ([]domain.Location, error) {
 	var locations []domain.Location
 
-	// Query base
-	query := `SELECT id, marine_id, name, ST_AsText(point) as point, mean_sea_level, timezone 
-              FROM location`
+	query := `SELECT id, marine_id, name, 
+				tide_tracker.ST_AsText(point::tide_tracker.geography) as point, 
+				mean_sea_level, timezone 
+              FROM tide_tracker.location`
 
-	// Se houver filtro, adicionamos o WHERE
 	if name != "" {
-		query += " WHERE name ILIKE '%' || :name || '%'"
+		query += " WHERE name ILIKE $1"
 	}
 
 	query += " ORDER BY name ASC"
 
-	// Usando SelectContext para mapear diretamente o resultado para o slice
 	var err error
-	if name != "" {
-		var boundQuery string
-		var args []interface{}
-
-		boundQuery, args, err = sqlx.Named(query, map[string]interface{}{"name": name})
-		if err != nil {
-			return nil, err
-		}
-
-		boundQuery = r.db.Rebind(boundQuery)
-		err = r.db.SelectContext(ctx, &locations, boundQuery, args...)
-	} else {
+	if name == "" {
 		err = r.db.SelectContext(ctx, &locations, query)
+		return locations, err
 	}
-
+	err = r.db.SelectContext(ctx, &locations, query, "%"+name+"%")
 	return locations, err
+
 }

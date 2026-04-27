@@ -31,7 +31,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", msl, "-03:00")
 
 	// 3. Expectativa: O regex agora ignora espaços extras e quebras de linha
-	mock.ExpectQuery(`(?is)SELECT (.+) FROM location`).WillReturnRows(rows)
+	mock.ExpectQuery(`(?is)SELECT (.+) FROM tide_tracker.location`).WillReturnRows(rows)
 
 	// 4. Execução
 	locations, err := repo.FetchAll(context.Background(), "")
@@ -61,13 +61,39 @@ func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {
 		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", 1.28, "-03:00")
 
 	// Expectativa com o WHERE clause - regex mais flexível para o ILIKE
-	mock.ExpectQuery(`(?is)SELECT .* FROM location WHERE name ILIKE .* ORDER BY name ASC`).
-		WithArgs("Recife").
+	mock.ExpectQuery(`(?is)SELECT .* FROM tide_tracker.location WHERE name ILIKE .* ORDER BY name ASC`).
+		WithArgs("%Recife%").
 		WillReturnRows(rows)
 
 	locations, err := repo.FetchAll(context.Background(), "Recife")
 
 	assert.NoError(t, err)
 	assert.Len(t, locations, 1)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestLocationRepo_GetByID(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Erro ao criar mock: %v", err)
+	}
+	defer mockDB.Close()
+
+	sqlxDB := sqlx.NewDb(mockDB, "postgres")
+	repo := NewLocationRepo(sqlxDB)
+
+	id := uuid.New()
+	rows := sqlmock.NewRows([]string{"id", "marine_id", "name", "point", "mean_sea_level", "timezone"}).
+		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", 1.28, "-03:00")
+
+	mock.ExpectQuery(`(?is)SELECT .* FROM tide_tracker.location WHERE id = \$1`).
+		WithArgs(id).
+		WillReturnRows(rows)
+
+	location, err := repo.GetByID(context.Background(), id)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, location)
+	assert.Equal(t, "PORTO DO RECIFE", location.Name)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
