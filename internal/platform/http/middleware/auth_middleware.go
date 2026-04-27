@@ -17,7 +17,16 @@ func EnsureValidToken(jwtSecret string) func(http.Handler) http.Handler {
 				http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
 				return
 			}
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			if !strings.HasPrefix(strings.ToLower(authHeader), "bearer ") {
+				http.Error(w, "Authorization header must use Bearer scheme", http.StatusUnauthorized)
+				return
+			}
+
+			tokenStr := strings.TrimSpace(authHeader[len("Bearer "):])
+			if tokenStr == "" {
+				http.Error(w, "Missing bearer token", http.StatusUnauthorized)
+				return
+			}
 			claims := &auth.CustomClaims{}
 
 			token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
