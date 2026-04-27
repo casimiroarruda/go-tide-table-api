@@ -24,7 +24,10 @@ func TestAuthRepo_ValidateClient(t *testing.T) {
 
 	clientID := uuid.New()
 	password := "secret123"
-	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("Erro ao gerar hash bcrypt: %v", err)
+	}
 
 	t.Run("successful validation", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"client_id", "client_secret", "name", "scopes"}).
