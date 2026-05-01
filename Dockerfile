@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main ./cmd/api/main.go
 
-FROM alpine:3.22  
+FROM alpine:latest 
 
 RUN apk --no-cache add ca-certificates
 
