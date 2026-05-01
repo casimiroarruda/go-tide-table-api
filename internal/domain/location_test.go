@@ -10,32 +10,32 @@ import (
 func TestMeanSeaLevel_MarshalJSON(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    MeanSeaLevel
+		input    TideHeight
 		expected string
 	}{
 		{
 			name:     "Should round to 2 decimal places",
-			input:    MeanSeaLevel(1.284),
+			input:    TideHeight(1.284),
 			expected: "1.28",
 		},
 		{
 			name:     "Should round up",
-			input:    MeanSeaLevel(1.286),
+			input:    TideHeight(1.286),
 			expected: "1.29",
 		},
 		{
 			name:     "Should handle exactly 2 decimal places",
-			input:    MeanSeaLevel(1.28),
+			input:    TideHeight(1.28),
 			expected: "1.28",
 		},
 		{
 			name:     "Should handle repeating decimals",
-			input:    MeanSeaLevel(1.3333333333),
+			input:    TideHeight(1.3333333333),
 			expected: "1.33",
 		},
 		{
 			name:     "Should handle zero",
-			input:    MeanSeaLevel(0),
+			input:    TideHeight(0),
 			expected: "0.00",
 		},
 	}

@@ -1,0 +1,1 @@
+DROP SCHEMA IF EXISTS tide_tracker CASCADE;
