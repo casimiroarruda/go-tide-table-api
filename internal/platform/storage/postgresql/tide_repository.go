@@ -19,8 +19,6 @@ func NewTideRepo(db *sqlx.DB) *TideRepo {
 
 func (r *TideRepo) GetTideTable(ctx context.Context, locationID uuid.UUID, day time.Time) ([]domain.Tide, error) {
 	var tides []domain.Tide
-	// startOfDay := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
-	// endOfDay := startOfDay.Add(24 * time.Hour)
 
 	dateStr := day.Format("2006-01-02")
 

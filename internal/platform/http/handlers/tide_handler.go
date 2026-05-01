@@ -36,9 +36,15 @@ func (h *TideHandler) GetTideTable(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	parsedUUID, err := uuid.Parse(locationId)
+	if err != nil {
+		http.Error(w, "Invalid location ID format", http.StatusBadRequest)
+		return
+	}
+
 	tides, err := h.tideRepo.GetTideTable(
 		r.Context(),
-		uuid.Must(uuid.Parse(locationId)),
+		parsedUUID,
 		targetDate,
 	)
 	if err != nil {
