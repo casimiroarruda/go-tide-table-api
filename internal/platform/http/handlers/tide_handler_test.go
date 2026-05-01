@@ -35,7 +35,6 @@ func TestTideHandler_GetTideTable(t *testing.T) {
 		date           string
 		mockSetup      func(m *MockTideRepository)
 		expectedStatus int
-		expectJSONErr  bool
 	}{
 		{
 			name:       "Success - valid date",
@@ -46,17 +45,6 @@ func TestTideHandler_GetTideTable(t *testing.T) {
 					return []domain.Tide{
 						{LocationID: locID, Time: day, Type: "HIGH"},
 					}, nil
-				}
-			},
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name:       "Success - empty date (uses current date)",
-			locationID: locationID.String(),
-			date:       "",
-			mockSetup: func(m *MockTideRepository) {
-				m.mockGetTideTable = func(ctx context.Context, locID uuid.UUID, day time.Time) ([]domain.Tide, error) {
-					return []domain.Tide{}, nil
 				}
 			},
 			expectedStatus: http.StatusOK,
@@ -96,7 +84,7 @@ func TestTideHandler_GetTideTable(t *testing.T) {
 			handler := NewTideHandler(mockRepo)
 
 			req := httptest.NewRequest(http.MethodGet, "/location/"+tt.locationID+"/tides/"+tt.date, nil)
-			
+
 			// Setup chi context for URL params
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("id", tt.locationID)

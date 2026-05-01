@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMeanSeaLevel_MarshalJSON(t *testing.T) {
+func TestTideHeightMarshalJSON(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    TideHeight

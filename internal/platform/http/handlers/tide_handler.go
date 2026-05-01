@@ -24,16 +24,14 @@ func (h *TideHandler) GetTideTable(w http.ResponseWriter, r *http.Request) {
 	locationId := chi.URLParam(r, "id")
 	dateStr := chi.URLParam(r, "date")
 
-	var targetDate time.Time
-	var err error
-
-	targetDate = time.Now().UTC()
-	if dateStr != "" {
-		targetDate, err = time.Parse("2006-01-02", dateStr)
-		if err != nil {
-			http.Error(w, "Invalid date format", http.StatusBadRequest)
-			return
-		}
+	if dateStr == "" {
+		http.Error(w, "Date is required", http.StatusBadRequest)
+		return
+	}
+	targetDate, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		http.Error(w, "Invalid date format", http.StatusBadRequest)
+		return
 	}
 
 	parsedUUID, err := uuid.Parse(locationId)
