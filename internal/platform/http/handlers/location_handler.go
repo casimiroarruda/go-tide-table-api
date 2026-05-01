@@ -29,15 +29,7 @@ func (h *LocationHandler) GetLocations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Codifica para um buffer primeiro para evitar enviar headers de sucesso se a serialização falhar
-	data, err := json.Marshal(locations)
-	if err != nil {
-		log.Printf("❌ Erro ao codificar JSON: %v", err)
-		http.Error(w, "Erro ao processar resposta", http.StatusInternalServerError)
-		return
-	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	json.NewEncoder(w).Encode(locations)
 }

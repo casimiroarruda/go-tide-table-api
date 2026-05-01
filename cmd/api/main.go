@@ -39,8 +39,10 @@ func main() {
 
 	locationRepo := postgresql.NewLocationRepo(db)
 	authRepo := postgresql.NewAuthRepository(db)
-	locationHandler := handlers.NewLocationHandler(locationRepo)
+	tideRepo := postgresql.NewTideRepo(db)
 	authHandler := handlers.NewAuthHandler(authRepo, jwtSecret)
+	locationHandler := handlers.NewLocationHandler(locationRepo)
+	tideHandler := handlers.NewTideHandler(tideRepo)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -58,7 +60,8 @@ func main() {
 		)
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.EnsureValidToken(jwtSecret))
-			r.Get("/locations", locationHandler.GetLocations)
+			r.Get("/location", locationHandler.GetLocations)
+			r.Get("/location/{id}/tides/{date}", tideHandler.GetTideTable)
 		})
 	})
 

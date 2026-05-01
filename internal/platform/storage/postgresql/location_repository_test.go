@@ -41,7 +41,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 	assert.Len(t, locations, 1)
 	if len(locations) > 0 {
 		assert.Equal(t, "PORTO DO RECIFE", locations[0].Name)
-		assert.Equal(t, domain.MeanSeaLevel(1.28), locations[0].MeanSeaLevel)
+		assert.Equal(t, domain.TideHeight(1.28), locations[0].MeanSeaLevel)
 	}
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
