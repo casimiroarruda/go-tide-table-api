@@ -3,10 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - DATABASE_URL=${DATABASE_URL}
-        - PORT=${PORT}
-    env_file:
-      - .env
     ports:
       - "${PORT}:${PORT}"
+    volumes:
+      - .:/app
