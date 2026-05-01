@@ -1,6 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS tide_tracker;
 
 CREATE EXTENSION IF NOT EXISTS "postgis" SCHEMA "tide_tracker";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA "tide_tracker";
 
 CREATE TABLE IF NOT EXISTS "tide_tracker"."location"(
    "id" uuid DEFAULT gen_random_uuid() NOT NULL,
