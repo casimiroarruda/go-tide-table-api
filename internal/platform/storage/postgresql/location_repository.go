@@ -12,8 +12,6 @@ type LocationRepo struct {
 	db *sqlx.DB
 }
 
-
-
 // GetByID implements [domain.LocationRepository].
 func (r *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Location, error) {
 	var location domain.Location
@@ -42,9 +40,11 @@ func (r *LocationRepo) FetchAllByName(ctx context.Context, name string) (*[]doma
 			  WHERE name ILIKE $1
 			  ORDER BY name ASC`
 
-	err := r.db.SelectContext(ctx, &locations, query, "%"+name+"%")
-	return &locations, err
+	if err := r.db.SelectContext(ctx, &locations, query, "%"+name+"%"); err != nil {
+		return nil, err
+	}
 
+	return &locations, nil
 }
 
 func (r *LocationRepo) FindNearest(ctx context.Context, longitude float64, latitude float64) (*[]domain.Location, error) {
