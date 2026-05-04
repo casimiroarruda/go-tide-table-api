@@ -43,7 +43,7 @@ func (m *MockLocationRepository) FindNearest(ctx context.Context, longitude floa
 	return args.Get(0).(*[]domain.Location), args.Error(1)
 }
 
-func TestLocationHandler_GetLocations(t *testing.T) {
+func TestLocationHandler_SearchByNameOrByPosition(t *testing.T) {
 	t.Run("Should return locations successfully", func(t *testing.T) {
 		mockRepo := new(MockLocationRepository)
 		handler := NewLocationHandler(mockRepo)
