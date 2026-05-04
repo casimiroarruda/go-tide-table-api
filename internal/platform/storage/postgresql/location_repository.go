@@ -12,6 +12,8 @@ type LocationRepo struct {
 	db *sqlx.DB
 }
 
+
+
 // GetByID implements [domain.LocationRepository].
 func (r *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Location, error) {
 	var location domain.Location
@@ -30,26 +32,31 @@ func NewLocationRepo(db *sqlx.DB) *LocationRepo {
 	return &LocationRepo{db: db}
 }
 
-func (r *LocationRepo) FetchAll(ctx context.Context, name string) ([]domain.Location, error) {
+func (r *LocationRepo) FetchAllByName(ctx context.Context, name string) (*[]domain.Location, error) {
 	var locations []domain.Location
 
 	query := `SELECT id, marine_id, name, 
+					tide_tracker.ST_AsText(point::tide_tracker.geography) as point, 
+					mean_sea_level, timezone 
+              FROM tide_tracker.location
+			  WHERE name ILIKE $1
+			  ORDER BY name ASC`
+
+	err := r.db.SelectContext(ctx, &locations, query, "%"+name+"%")
+	return &locations, err
+
+}
+
+func (r *LocationRepo) FindNearest(ctx context.Context, longitude float64, latitude float64) (*[]domain.Location, error) {
+	var locations []domain.Location
+
+	query := `
+		SELECT id, marine_id, name, 
 				tide_tracker.ST_AsText(point::tide_tracker.geography) as point, 
 				mean_sea_level, timezone 
-              FROM tide_tracker.location`
-
-	if name != "" {
-		query += " WHERE name ILIKE $1"
-	}
-
-	query += " ORDER BY name ASC"
-
-	var err error
-	if name == "" {
-		err = r.db.SelectContext(ctx, &locations, query)
-		return locations, err
-	}
-	err = r.db.SelectContext(ctx, &locations, query, "%"+name+"%")
-	return locations, err
-
+              FROM tide_tracker.location
+              ORDER BY point <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
+              LIMIT 3`
+	err := r.db.SelectContext(ctx, &locations, query, longitude, latitude)
+	return &locations, err
 }

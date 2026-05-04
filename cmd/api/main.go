@@ -60,7 +60,7 @@ func main() {
 		)
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.EnsureValidToken(jwtSecret))
-			r.Get("/location", locationHandler.GetLocations)
+			r.Get("/location", locationHandler.SearchByNameOrByPosition)
 			r.Get("/location/{id}/tides/{date}", tideHandler.GetTideTable)
 		})
 	})
