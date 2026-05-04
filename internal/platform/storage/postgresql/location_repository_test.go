@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLocationRepo_FetchAll(t *testing.T) {
+func TestLocationRepo_FetchAllByName(t *testing.T) {
 	// 1. Setup do Mock
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -47,7 +47,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {
+func TestLocationRepo_FetchAllByName_WithFilter(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("Erro ao criar mock: %v", err)
