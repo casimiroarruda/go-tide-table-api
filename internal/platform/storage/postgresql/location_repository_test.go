@@ -39,10 +39,10 @@ func TestLocationRepo_FetchAllByName(t *testing.T) {
 	// 5. Asserts (Validações)
 	assert.NoError(t, err)
 	assert.NotNil(t, locations)
-	assert.Len(t, *locations, 1)
-	if locations != nil && len(*locations) > 0 {
-		assert.Equal(t, "PORTO DO RECIFE", (*locations)[0].Name)
-		assert.Equal(t, domain.TideHeight(1.28), (*locations)[0].MeanSeaLevel)
+	assert.Len(t, locations, 1)
+	if len(locations) > 0 {
+		assert.Equal(t, "PORTO DO RECIFE", locations[0].Name)
+		assert.Equal(t, domain.TideHeight(1.28), locations[0].MeanSeaLevel)
 	}
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -70,7 +70,7 @@ func TestLocationRepo_FetchAllByName_WithFilter(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, locations)
-	assert.Len(t, *locations, 1)
+	assert.Len(t, locations, 1)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -122,6 +122,6 @@ func TestLocationRepo_FindNearest(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, locations)
-	assert.Len(t, *locations, 1)
+	assert.Len(t, locations, 1)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }

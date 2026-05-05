@@ -30,7 +30,7 @@ func NewLocationRepo(db *sqlx.DB) *LocationRepo {
 	return &LocationRepo{db: db}
 }
 
-func (r *LocationRepo) FetchAllByName(ctx context.Context, name string) (*[]domain.Location, error) {
+func (r *LocationRepo) FetchAllByName(ctx context.Context, name string) ([]domain.Location, error) {
 	var locations []domain.Location
 
 	query := `SELECT id, marine_id, name, 
@@ -44,10 +44,10 @@ func (r *LocationRepo) FetchAllByName(ctx context.Context, name string) (*[]doma
 		return nil, err
 	}
 
-	return &locations, nil
+	return locations, nil
 }
 
-func (r *LocationRepo) FindNearest(ctx context.Context, longitude float64, latitude float64) (*[]domain.Location, error) {
+func (r *LocationRepo) FindNearest(ctx context.Context, longitude float64, latitude float64) ([]domain.Location, error) {
 	var locations []domain.Location
 
 	query := `
@@ -60,5 +60,5 @@ func (r *LocationRepo) FindNearest(ctx context.Context, longitude float64, latit
 	if err := r.db.SelectContext(ctx, &locations, query, longitude, latitude); err != nil {
 		return nil, err
 	}
-	return &locations, nil
+	return locations, nil
 }
