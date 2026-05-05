@@ -72,7 +72,7 @@ func TestLocationHandler_SearchByNameOrByPosition(t *testing.T) {
 		mockRepo := new(MockLocationRepository)
 		handler := NewLocationHandler(mockRepo)
 
-		mockRepo.On("FetchAllByName", mock.Anything, "Recife").Return(&[]domain.Location{}, nil)
+		mockRepo.On("FetchAllByName", mock.Anything, "Recife").Return([]domain.Location{}, nil)
 
 		req, _ := http.NewRequest("GET", "/api/locations?name=Recife", nil)
 		rr := httptest.NewRecorder()
@@ -101,7 +101,7 @@ func TestLocationHandler_SearchByNameOrByPosition(t *testing.T) {
 		mockRepo := new(MockLocationRepository)
 		handler := NewLocationHandler(mockRepo)
 
-		expectedLocations := &[]domain.Location{
+		expectedLocations := []domain.Location{
 			{ID: uuid.New(), Name: "Recife", MeanSeaLevel: 1.28},
 		}
 
@@ -118,7 +118,7 @@ func TestLocationHandler_SearchByNameOrByPosition(t *testing.T) {
 		var actualLocations []domain.Location
 		err := json.Unmarshal(rr.Body.Bytes(), &actualLocations)
 		assert.NoError(t, err)
-		assert.Equal(t, *expectedLocations, actualLocations)
+		assert.Equal(t, expectedLocations, actualLocations)
 	})
 
 	t.Run("Should return 422 when no parameter is provided", func(t *testing.T) {
