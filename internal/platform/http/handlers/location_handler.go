@@ -18,12 +18,11 @@ func NewLocationHandler(repo domain.LocationRepository) *LocationHandler {
 	return &LocationHandler{repo: repo}
 }
 
-func (h *LocationHandler) GetLocationsByName(ctx context.Context, nameFilter string) (*[]domain.Location, error) {
-
+func (h *LocationHandler) GetLocationsByName(ctx context.Context, nameFilter string) ([]domain.Location, error) {
 	return h.repo.FetchAllByName(ctx, nameFilter)
 }
 
-func (h *LocationHandler) GetNearestLocations(ctx context.Context, latitude string, longitude string) (*[]domain.Location, error) {
+func (h *LocationHandler) GetNearestLocations(ctx context.Context, latitude string, longitude string) ([]domain.Location, error) {
 	lat, _ := strconv.ParseFloat(latitude, 64)
 	lon, _ := strconv.ParseFloat(longitude, 64)
 
@@ -33,14 +32,14 @@ func (h *LocationHandler) GetNearestLocations(ctx context.Context, latitude stri
 
 func (h *LocationHandler) SearchByNameOrByPosition(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var locations *[]domain.Location
+	var locations []domain.Location
 	var err error
 
 	if r.URL.Query().Has("name") {
 		locations, err = h.GetLocationsByName(ctx, r.URL.Query().Get("name"))
 	}
 
-	if locations == nil && r.URL.Query().Has("lat") && r.URL.Query().Has("lon") {
+	if len(locations) == 0 && r.URL.Query().Has("lat") && r.URL.Query().Has("lon") {
 		locations, err = h.GetNearestLocations(ctx, r.URL.Query().Get("lat"), r.URL.Query().Get("lon"))
 	}
 

@@ -57,6 +57,8 @@ func (r *LocationRepo) FindNearest(ctx context.Context, longitude float64, latit
               FROM tide_tracker.location
               ORDER BY point <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
               LIMIT 3`
-	err := r.db.SelectContext(ctx, &locations, query, longitude, latitude)
-	return &locations, err
+	if err := r.db.SelectContext(ctx, &locations, query, longitude, latitude); err != nil {
+		return nil, err
+	}
+	return &locations, nil
 }
