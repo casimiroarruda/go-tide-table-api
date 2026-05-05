@@ -23,8 +23,14 @@ func (h *LocationHandler) GetLocationsByName(ctx context.Context, nameFilter str
 }
 
 func (h *LocationHandler) GetNearestLocations(ctx context.Context, latitude string, longitude string) ([]domain.Location, error) {
-	lat, _ := strconv.ParseFloat(latitude, 64)
-	lon, _ := strconv.ParseFloat(longitude, 64)
+	lat, err := strconv.ParseFloat(latitude, 64)
+	if err != nil {
+		return nil, err
+	}
+	lon, err := strconv.ParseFloat(longitude, 64)
+	if err != nil {
+		return nil, err
+	}
 
 	return h.repo.FindNearest(ctx, lon, lat)
 
