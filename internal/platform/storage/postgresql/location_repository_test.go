@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLocationRepo_FetchAll(t *testing.T) {
+func TestLocationRepo_FetchAllByName(t *testing.T) {
 	// 1. Setup do Mock
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -34,10 +34,11 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 	mock.ExpectQuery(`(?is)SELECT (.+) FROM tide_tracker.location`).WillReturnRows(rows)
 
 	// 4. Execução
-	locations, err := repo.FetchAll(context.Background(), "")
+	locations, err := repo.FetchAllByName(context.Background(), "")
 
 	// 5. Asserts (Validações)
 	assert.NoError(t, err)
+	assert.NotNil(t, locations)
 	assert.Len(t, locations, 1)
 	if len(locations) > 0 {
 		assert.Equal(t, "PORTO DO RECIFE", locations[0].Name)
@@ -46,7 +47,7 @@ func TestLocationRepo_FetchAll(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {
+func TestLocationRepo_FetchAllByName_WithFilter(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("Erro ao criar mock: %v", err)
@@ -65,9 +66,10 @@ func TestLocationRepo_FetchAll_WithFilter(t *testing.T) {
 		WithArgs("%Recife%").
 		WillReturnRows(rows)
 
-	locations, err := repo.FetchAll(context.Background(), "Recife")
+	locations, err := repo.FetchAllByName(context.Background(), "Recife")
 
 	assert.NoError(t, err)
+	assert.NotNil(t, locations)
 	assert.Len(t, locations, 1)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -95,5 +97,31 @@ func TestLocationRepo_GetByID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, location)
 	assert.Equal(t, "PORTO DO RECIFE", location.Name)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestLocationRepo_FindNearest(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Erro ao criar mock: %v", err)
+	}
+	defer mockDB.Close()
+
+	sqlxDB := sqlx.NewDb(mockDB, "postgres")
+	repo := NewLocationRepo(sqlxDB)
+
+	id := uuid.New()
+	rows := sqlmock.NewRows([]string{"id", "marine_id", "name", "point", "mean_sea_level", "timezone"}).
+		AddRow(id, "24", "PORTO DO RECIFE", "POINT(-34.87 -8.05)", 1.28, "-03:00")
+
+	mock.ExpectQuery(`(?is)SELECT .* FROM tide_tracker.location ORDER BY point <-> .* LIMIT 3`).
+		WithArgs(-34.87, -8.05).
+		WillReturnRows(rows)
+
+	locations, err := repo.FindNearest(context.Background(), -34.87, -8.05)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, locations)
+	assert.Len(t, locations, 1)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
