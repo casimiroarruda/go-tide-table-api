@@ -36,8 +36,8 @@ func (r *TideRepo) GetTideTable(ctx context.Context, locationID uuid.UUID, day t
 		JOIN tide_tracker.location l ON t.location_id = l.id
 		WHERE
 		t.location_id = $1
-		AND t.time >= ($2::date)::timestamptz AT TIME ZONE l.timezone
-		AND t.time < ($2::date + INTERVAL '1 day')::timestamptz AT TIME ZONE l.timezone
+		AND t.time >= ($2::date)::timestamp AT TIME ZONE l.timezone
+		AND t.time < ($2::date + INTERVAL '1 day')::timestamp AT TIME ZONE l.timezone
 		ORDER BY
 		t.time ASC
     `
